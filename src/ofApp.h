@@ -2,7 +2,7 @@
 
 #include "ofMain.h"
 #include "Simulation.h"
-#include "coefficientSpline.h"
+#include "CoefficientSpline.h"
 
 #define LOOP 10000
 

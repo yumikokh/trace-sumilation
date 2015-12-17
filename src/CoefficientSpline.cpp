@@ -6,7 +6,7 @@
 //
 //
 
-#include "coefficientSpline.h"
+#include "CoefficientSpline.h"
 
 CoefficientSpline::CoefficientSpline() {
     

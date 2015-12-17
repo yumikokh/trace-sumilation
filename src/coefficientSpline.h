@@ -1,11 +1,10 @@
 //
-//  coefficientSpline.h
+//  CoefficientSpline.h
 //  traceSumilation
 //
 //  Created by Yumiko Kokubu on 12/18/15.
 //
 //
-
 
 #pragma once
 #include "ofMain.h"
@@ -16,16 +15,15 @@ struct CoefficientValue {
     double Cd;
 };
 
-
 class CoefficientSpline {
+    
+    vector<CoefficientValue> coValues;
     
 public:
     CoefficientSpline();
     
     void readData();
     void drawSpline();
-    
-    vector<CoefficientValue> coValues;
 };
 
 

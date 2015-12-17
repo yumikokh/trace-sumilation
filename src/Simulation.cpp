@@ -22,7 +22,7 @@ Simulation::Simulation() {
 
 void Simulation::Runge_Kutta(double (*f[])(double t, double *x), double t0, double *x, double tn, int div, int num)
 {
-
+    
     double k1[num], k2[num], k3[num], k4[num], temp[num];
     
     //　ここから計算スタート
@@ -49,7 +49,7 @@ void Simulation::Runge_Kutta(double (*f[])(double t, double *x), double t0, doub
             temp[j] = x[j] + h*k3[j];
         }
         for(int j=0; j<num; j++){
-        k4[j] = (*f[j])(t+h, temp);
+            k4[j] = (*f[j])(t+h, temp);
             x[j] += (k1[j] + 2*k2[j] + 2*k3[j] + k4[j])*h/6;
         }
         t += h;
@@ -118,13 +118,13 @@ void Simulation::update()
     h=(tn - t)/LOOP;
     
     
-//    printf("%f %f \n",  x[2], x[3]);
+    //    printf("%f %f \n",  x[2], x[3]);
     
     for(int i=0; i<LOOP; i++){
         Runge_Kutta(f, t, x, t+h, 1, 4);
         ofVec2f p = ofVec2f(x[2], x[3]);
         points.push_back(p);
-//        printf("%f %f \n",  x[2], x[3]);
+        //        printf("%f %f \n",  x[2], x[3]);
         t+=h;
     }
     
@@ -138,11 +138,11 @@ void Simulation::draw()
         ofCircle(points[i].x*100, points[i].y*100, 1);
     }
     
-//    ofSetColor(ofColor::red);
-//    ofCircle(points[j].x*100, points[j].y*100, 30);
+    //    ofSetColor(ofColor::red);
+    //    ofCircle(points[j].x*100, points[j].y*100, 30);
     
-
+    
     if(j<LOOP){
-    j+=100;
+        j+=100;
     }
 }
