@@ -23,18 +23,18 @@ public:
     static double f3(double t, double *x);
     static double f4(double t, double *x);
     
-    static double setValue(double d, double m, double area ,double Cd, double Cl, double theta, double rho);
+    static double setValue(double m, double area ,double Cd, double Cl, double theta, ofVec2f _velocity, double rho);
     static double setGravity(double g);
     void update();
     void draw();
     
-    static double d, velocity, area, Cd, Cl, theta, m, rho;
+    static ofVec2f velocity;
+    static double area, Cd, Cl, theta, m, rho;
     static double g;
     
     vector <ofVec2f> points;
     ofVec2f point;
     
-    int j;
-    
+    int n;
     
 };

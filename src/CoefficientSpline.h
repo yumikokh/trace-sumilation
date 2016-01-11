@@ -9,21 +9,26 @@
 #pragma once
 #include "ofMain.h"
 
+#define TYPE_NUM 2
+
 struct CoefficientValue {
-    double degree;
-    double Cl;
-    double Cd;
+    float degree;
+    float C[2];
 };
 
+enum CoefficientType { Cl, Cd };
+    
 class CoefficientSpline {
-    
-    vector<CoefficientValue> coValues;
-    
 public:
+    
     CoefficientSpline();
     
     void readData();
+    float interpolate( float _t, CoefficientType _type );
     void drawSpline();
+    vector <CoefficientValue> coValues;
+    
+    float * z[TYPE_NUM];
+    
 };
-
 

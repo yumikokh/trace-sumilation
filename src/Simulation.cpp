@@ -9,15 +9,13 @@
 #include "Simulation.h"
 
 // static変数はどこでも使えるようにクラスの前で宣言
-double Simulation::d, Simulation::velocity, Simulation::area, Simulation::Cd, Simulation::Cl, Simulation::theta, Simulation::m, Simulation::rho;
+ofVec2f Simulation::velocity;
+double Simulation::area, Simulation::Cd, Simulation::Cl, Simulation::theta, Simulation::m, Simulation::rho;
 double Simulation::g;
 
 
-
 Simulation::Simulation() {
-    
-    j = 0;
-    
+    n = 0;
 }
 
 void Simulation::Runge_Kutta(double (*f[])(double t, double *x), double t0, double *x, double tn, int div, int num)
@@ -57,15 +55,16 @@ void Simulation::Runge_Kutta(double (*f[])(double t, double *x), double t0, doub
     
 }
 
-double Simulation::setValue(double _d, double _m, double _area ,double _cd, double _cl, double _theta, double _rho)
+double Simulation::setValue(double _m, double _area ,double _cd, double _cl, double _theta, ofVec2f _velocity, double _rho)
 {
-    d = _d;
-    m = _m;
-    area = _area;
-    Cd = _cd;
+    m = _m; //kg
+    area = _area; //m2
+    Cd = _cd; //
     Cl = _cl;
     theta = _theta;
-    rho = _rho;
+    rho = _rho; //
+    
+    velocity = _velocity;
     
 }
 
@@ -74,25 +73,21 @@ double Simulation::setGravity(double _g)
     g = _g;
 }
 
-// x''=
 double Simulation::f1(double t, double *x)
 {
     return -(rho*(x[0]*x[0]+x[1]*x[1])*(Cd*cos(theta)+Cl*sin(theta))*area)/(2*m);
 }
 
-// y''=
 double Simulation::f2(double t, double *x)
 {
     return -(rho*(x[0]*x[0]+x[1]*x[1])*(Cd*sin(theta)-Cl*cos(theta))*area)/(2*m)-m*g;
 }
 
-// x'=
 double Simulation::f3(double t, double *x)
 {
     return x[0];
 }
 
-// y'=
 double Simulation::f4(double t, double *x)
 {
     return x[1];
@@ -104,7 +99,7 @@ void Simulation::update()
 {
     
     double t=0, tn=1;
-    double x[] = {20, 10, 1., 1.};
+    double x[] = {velocity.x, velocity.y, 1., 1.};
     
     double h;
     
@@ -116,11 +111,9 @@ void Simulation::update()
     f[3] = f4;
     
     h=(tn - t)/LOOP;
-    
-    
-    //    printf("%f %f \n",  x[2], x[3]);
-    
+    points.clear();
     for(int i=0; i<LOOP; i++){
+        //Runge_Kutta(double (*f[])(double t, double *x), double t0, double *x, double tn, int div, int num)
         Runge_Kutta(f, t, x, t+h, 1, 4);
         ofVec2f p = ofVec2f(x[2], x[3]);
         points.push_back(p);
@@ -128,21 +121,25 @@ void Simulation::update()
         t+=h;
     }
     
-    
 }
 
 void Simulation::draw()
 {
-    ofSetColor(ofColor::pink);
+    ofSetColor(ofColor::blue);
+    
+    ofPushStyle();
+    ofNoFill();
+    ofSetLineWidth(2);
+    ofSetColor(255);
+    ofBeginShape();
     for(int i=0; i<LOOP; i++){
-        ofCircle(points[i].x*100, points[i].y*100, 1);
+        ofVertex(points[i].x*100, points[i].y*100);
     }
+
+    ofEndShape();
+    ofPopStyle();
     
-    //    ofSetColor(ofColor::red);
-    //    ofCircle(points[j].x*100, points[j].y*100, 30);
-    
-    
-    if(j<LOOP){
-        j+=100;
-    }
+//    ofSetColor(ofColor::yellow);
+//    ofCircle(points[n].x*100, points[n].y*100, 10);
+//    n+=40;
 }
