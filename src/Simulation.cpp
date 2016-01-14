@@ -98,8 +98,19 @@ double Simulation::f4(double t, double *x)
 void Simulation::update()
 {
     
-    double t=0, tn=1;
-    double x[] = {velocity.x, velocity.y, 1., 1.};
+    double t=0, tn=1; //1s
+    double x[4];
+//    if (points.empty()) {
+        x[0] = velocity.x;
+        x[1] = velocity.y;
+        x[2] = x[3] = 0;
+//    }else {
+//        x[0] = velocity.x;
+//        x[1] = velocity.y;
+//        x[2] = points.end()->x;
+//        x[3] = points.end()->y;
+//    }
+    
     
     double h;
     
@@ -133,9 +144,8 @@ void Simulation::draw()
     ofSetColor(255);
     ofBeginShape();
     for(int i=0; i<LOOP; i++){
-        ofVertex(points[i].x*100, points[i].y*100);
+        ofVertex(points[i].x, points[i].y); //アレ？
     }
-
     ofEndShape();
     ofPopStyle();
     

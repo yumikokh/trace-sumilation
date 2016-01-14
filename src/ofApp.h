@@ -4,7 +4,6 @@
 #include "Simulation.h"
 #include "CoefficientSpline.h"
 
-#define LOOP 10000
 #define NUM_POS 20
 
 class ofApp : public ofBaseApp{
@@ -46,6 +45,7 @@ class ofApp : public ofBaseApp{
     
     ofVec3f initVel;
     float initDeg;
+    float initRad;
     
     float curTime;
     float preTime;

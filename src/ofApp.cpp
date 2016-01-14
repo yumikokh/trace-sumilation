@@ -52,12 +52,12 @@ void ofApp::update(){
     }
     
     //--> 初速度
-    vector<ofVec3f>::iterator fitr = bpos.end() - 4;
+    vector<ofVec3f>::iterator fitr = bpos.end() - 5;
     vector<ofVec3f>::iterator eitr = bpos.end() - 1;
     initVel = *eitr - *fitr;
     
     //--> 初角度
-    initDeg = ofRadToDeg( atan2( initVel.x, initVel.y) );
+    initDeg =  ofRadToDeg( atan2( initVel.y, initVel.x) );
     
     //--> 1spf
     curTime = ofGetElapsedTimef();
@@ -66,7 +66,7 @@ void ofApp::update(){
     
     //
     if (20 > ofDist(racketPos.x, racketPos.y, shuttlePos.x, shuttlePos.y)) {
-        simu.setValue( mass, area, .001*1.3, .01*1.7, ofDegToRad(initDeg), initVel, rho);
+        simu.setValue( mass, area, .001*cSpline.getInterpolation( initDeg, Cd), .01*cSpline.getInterpolation( initDeg, Cl), ofDegToRad(initDeg), initVel, rho);
         shotSwitch = true;
     }else {
         shotSwitch = false;
@@ -80,34 +80,25 @@ void ofApp::draw(){
     
     ofSetColor(255, 255, 255);
 //    ofDrawBitmapString(ofGetTimestampString(), 50, 50);
-    ofDrawBitmapString(ofToString(ofGetFrameRate()), 50, 70);
+    ofDrawBitmapString(ofToString(ofGetFrameRate()) + "fps", 50, 70);
 //    ofDrawBitmapString(ofToString(elapsedTime), 50, 80);
-//    ofDrawBitmapString(ofToString(initVel), 50, 100);
-//    ofDrawBitmapString(ofToString(initDeg), 50, 120);
+    ofDrawBitmapString("initVelocity: " + ofToString(initVel), 50, 100);
+    ofDrawBitmapString("initDegree: " + ofToString(initDeg), 50, 120);
+    ofDrawBitmapString("Cd: "+ofToString(cSpline.getInterpolation( initDeg, Cd)), 50, 150 );
+
     
     //--> 抵抗係数グラフ
-//    ofPushStyle();
-//    ofNoFill();
-//    ofSetLineWidth(2);
-//    ofSetColor(255);
-//    ofBeginShape();
-//    for(float i=0; i<180 ; i+=0.1) {
-//        ofVertex(ofGetWidth()/180. * i, ofGetHeight()/2 - 300 * cSpline.interpolate(i, Cl));
-//    }
-//    ofEndShape();
-//    ofBeginShape();
-//    for(float i=0; i<180 ; i+=0.1) {
-//        ofVertex(ofGetWidth()/180. * i, ofGetHeight() - 300 * cSpline.interpolate(i, Cd));
-//    }
-//    ofEndShape();
-//    ofPopStyle();
+    cSpline.drawSpline();
     
     //--> 原点を下辺中央に
     ofTranslate(ofGetWidth()/2, ofGetHeight());
     ofScale( 1, -1, 1);
 
     //--> シュミレーション軌跡描画
+    ofPushMatrix();
+    ofTranslate(shuttlePos.x, shuttlePos.y);
     simu.draw();
+    ofPopMatrix();
     
     //--> ラケット描画
     ofSetColor(ofColor::yellow);

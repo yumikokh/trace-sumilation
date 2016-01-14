@@ -24,7 +24,7 @@ public:
     CoefficientSpline();
     
     void readData();
-    float interpolate( float _t, CoefficientType _type );
+    float getInterpolation( float _t, CoefficientType _type );
     void drawSpline();
     vector <CoefficientValue> coValues;
     

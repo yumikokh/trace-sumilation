@@ -40,11 +40,9 @@ void CoefficientSpline::readData() {
         
         z[typeIndex] = new float[n]();
         
-        
         float * h = new float[n]();
         float * d = new float[n]();
         
-  
         z[typeIndex][0] = z[typeIndex][n-1] = 0;
         
         for (int i = 0; i < n-1; i++) {
@@ -74,7 +72,7 @@ void CoefficientSpline::readData() {
     
 }
 
-float CoefficientSpline::interpolate(float t, CoefficientType type) {
+float CoefficientSpline::getInterpolation(float t, CoefficientType type) {
     int i = 0;
     int j = coValues.size() - 1;
     
@@ -115,5 +113,20 @@ float CoefficientSpline::interpolate(float t, CoefficientType type) {
 
 void CoefficientSpline::drawSpline() {
     
-    
+    ofPushStyle();
+    ofNoFill();
+    ofSetLineWidth(2);
+    ofSetColor(ofColor::goldenRod);
+    ofBeginShape();
+    for(float i=0; i<180 ; i+=0.1) {
+        ofVertex(ofGetWidth()/180. * i, ofGetHeight()/2 - 300 * getInterpolation(i, Cl));
+    }
+    ofEndShape();
+    ofBeginShape();
+    for(float i=0; i<180 ; i+=0.1) {
+        ofVertex(ofGetWidth()/180. * i, ofGetHeight() - 300 * getInterpolation(i, Cd));
+    }
+    ofEndShape();
+    ofPopStyle();
+
 }

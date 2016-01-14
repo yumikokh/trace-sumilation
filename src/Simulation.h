@@ -33,7 +33,7 @@ public:
     static double g;
     
     vector <ofVec2f> points;
-    ofVec2f point;
+//    ofVec2f point;
     
     int n;
     
