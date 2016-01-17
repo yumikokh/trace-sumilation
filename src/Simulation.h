@@ -5,9 +5,9 @@
 //  Created by Yumiko Kokubu on 12/9/15.
 //
 //
-
 #pragma once
 #include "ofMain.h"
+//#include "CoefficientSpline.h"
 
 #define LOOP 10000
 
@@ -23,18 +23,19 @@ public:
     static double f3(double t, double *x);
     static double f4(double t, double *x);
     
-    static double setValue(double m, double area ,double Cd, double Cl, double theta, ofVec2f _velocity, double rho);
+    static double setValue(double _m, double _area ,double _cd, double _cl, double _theta, ofVec3f _velocity, double _rho, ofVec3f _pos);
     static double setGravity(double g);
     void update();
     void draw();
+    vector <ofVec3f> getPos();
     
-    static ofVec2f velocity;
-    static double area, Cd, Cl, theta, m, rho;
+    static ofVec3f v0, v;
+    static ofVec3f pos0;
+    static double area, m, rho;
+    static double theta, theta0;
     static double g;
     
-    vector <ofVec2f> points;
+    vector <ofVec3f> points;
 //    ofVec2f point;
-    
-    int n;
     
 };

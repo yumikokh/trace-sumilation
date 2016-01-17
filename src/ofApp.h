@@ -6,6 +6,8 @@
 
 #define NUM_POS 20
 
+//CoefficientSpline* goSpline;
+
 class ofApp : public ofBaseApp{
 
 	public:
@@ -36,12 +38,14 @@ class ofApp : public ofBaseApp{
     Simulation simu;
     CoefficientSpline cSpline;
     
-    ofVec3f racketPos;
-    vector <ofVec3f> bpos;
+    ofVec3f racketPos[2];
+    vector <ofVec3f> bpos[2];
     
     ofVec3f mouse;
     
     ofVec3f shuttlePos;
+    vector <ofVec3f> bspos;
+    int curNum;
     
     ofVec3f initVel;
     float initDeg;
@@ -52,5 +56,6 @@ class ofApp : public ofBaseApp{
     float elapsedTime;
     
     bool shotSwitch;
+    bool area_1, area_2;
 		
 };
