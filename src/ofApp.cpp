@@ -4,13 +4,13 @@
 void ofApp::setup(){
     ofEnableSmoothing();
     ofEnableDepthTest();
-    ofSetFrameRate(60);
+    ofSetFrameRate(75);
     ofSetBackgroundAuto(true);
     
     ofBackground(ofColor::black);
     
     cSpline.readData();
-    //    goSpline = &cSpline;//ダメ
+    simu.setCoeSpline(&cSpline);
     
     mass = .001*4.8;
     area = .001*33*33*PI;// Skirt Diameter = 66mm
@@ -34,6 +34,11 @@ void ofApp::setup(){
     
     curNum = 0;
     
+    oscMocapReciever.setup( PORT_FROM_CORTEX );
+    oscMocapReciever.isInitialized();
+    
+    sender.setup("localhost", PORT_TO_UNITY);
+    
     //実空間とピクセルの単位を調整
     //z軸追加
 }
@@ -49,6 +54,26 @@ void ofApp::update(){
     }else {
         racketPos[1] = mouse;
     }
+    
+    //--> Cortex
+//    while(oscMocapReciever.hasWaitingMessages()){
+//        float **unBuf = oscMocapReciever.getTemplateMarkerData(TEMPLATE_RACKET_NUM, "racket01");
+//        for (int i = 0; i < TEMPLATE_RACKET_MARKER_NUM; i++) {
+//            racketMarkerPos[0][i].x = unBuf[i][0];
+//            racketMarkerPos[0][i].y = unBuf[i][1];
+//            racketMarkerPos[0][i].z = unBuf[i][2];
+//        }
+//        
+//        float **unBuf2 = oscMocapReciever.getTemplateMarkerData(TEMPLATE_RACKET_NUM, "racket02");
+//        for (int i = 0; i < TEMPLATE_RACKET_MARKER_NUM; i++) {
+//            racketMarkerPos[1][i].x = unBuf2[i][0];
+//            racketMarkerPos[1][i].y = unBuf2[i][1];
+//            racketMarkerPos[1][i].z = unBuf2[i][2];
+//        }
+//        
+//        racketPos[0] = racketMarkerPos[0][0];
+//        racketPos[1] = racketMarkerPos[1][0];
+//    }
     
     //--> ラケット位置バッファの保存
     for (int i=0; i<2; i++) {
@@ -114,6 +139,62 @@ void ofApp::update(){
         }
     }
     
+    if(!bspos.empty()){
+        shuttlePos = bspos[curNum];
+        curNum ++;
+    }
+    
+    //--> send to Unity
+    // シャトル
+    ofxOscMessage sx;
+    sx.setAddress("/shuttlePos/x");
+    sx.addFloatArg(shuttlePos.x);
+    sender.sendMessage(sx);
+    
+    ofxOscMessage sy;
+    sy.setAddress("/shuttlePos/y");
+    sy.addFloatArg(shuttlePos.x);
+    sender.sendMessage(sy);
+    
+    ofxOscMessage sz;
+    sz.setAddress("/shuttlePos/z");
+    sz.addFloatArg(shuttlePos.z);
+    sender.sendMessage(sz);
+    
+    
+    // ラケット1
+    ofxOscMessage r1x;
+    r1x.setAddress("/racket1Pos/x");
+    r1x.addFloatArg(racketPos[0].x);
+    sender.sendMessage(r1x);
+    
+    ofxOscMessage r1y;
+    r1y.setAddress("/racket1Pos/y");
+    r1y.addFloatArg(racketPos[0].y);
+    sender.sendMessage(r1y);
+    
+    ofxOscMessage r1z;
+    r1z.setAddress("/racket1Pos/z");
+    r1z.addFloatArg(racketPos[0].z);
+    sender.sendMessage(r1z);
+    
+    // ラケット2
+    ofxOscMessage r2x;
+    r2x.setAddress("/racket2Pos/x");
+    r2x.addFloatArg(racketPos[1].x);
+    sender.sendMessage(r2x);
+    
+    ofxOscMessage r2y;
+    r2y.setAddress("/racket2Pos/y");
+    r2y.addFloatArg(racketPos[1].y);
+    sender.sendMessage(r2y);
+    
+    ofxOscMessage r2z;
+    r2z.setAddress("/racket2Pos/z");
+    r2z.addFloatArg(racketPos[1].z);
+    sender.sendMessage(r2z);
+    
+    
 }
 
 
@@ -163,13 +244,6 @@ void ofApp::draw(){
         ofSetColor(ofColor::red);
     }else {
         ofSetColor(ofColor::green);
-    }
-    
-    ofSetColor(ofColor::red);
-    
-    if(!bspos.empty()){
-        shuttlePos = bspos[curNum];
-        curNum ++;
     }
     
     ofCircle(shuttlePos.x, shuttlePos.y, 10);

@@ -14,11 +14,13 @@ double Simulation::theta;
 double Simulation::area, Simulation::theta0, Simulation::m, Simulation::rho;
 double Simulation::g;
 
+CoefficientSpline Simulation::*coePtr;
+
 
 Simulation::Simulation() {
 }
 
-void Simulation::Runge_Kutta(double (*f[])(double t, double *x), double t0, double *x, double tn, int div, int num)
+void Simulation::Runge_Kutta(double (*f[])(double t, double *x, CoefficientSpline *_coePtr), double t0, double *x, double tn, int div, int num)
 {
     
     double k1[num], k2[num], k3[num], k4[num], temp[num];
@@ -30,23 +32,23 @@ void Simulation::Runge_Kutta(double (*f[])(double t, double *x), double t0, doub
     
     //    for(int i=0; i<div; i++){
     for(int j=0; j<num; j++){
-        k1[j] = (*f[j])(t, x);
+        k1[j] = (*f[j])(t, x, coePtr);
         temp[j] = x[j] + h*k1[j]/2;
     }
     for(int j=0; j<num; j++){
-        k2[j] = (*f[j])(t+h/2, temp);
+        k2[j] = (*f[j])(t+h/2, temp, coePtr);
     }
     for(int j=0; j<num; j++){
         temp[j] = x[j] + h*k2[j]/2;
     }
     for(int j=0; j<num; j++){
-        k3[j] = (*f[j])(t+h/2, temp);
+        k3[j] = (*f[j])(t+h/2, temp, coePtr);
     }
     for(int j=0; j<num; j++){
         temp[j] = x[j] + h*k3[j];
     }
     for(int j=0; j<num; j++){
-        k4[j] = (*f[j])(t+h, temp);
+        k4[j] = (*f[j])(t+h, temp, coePtr);
         x[j] += (k1[j] + 2*k2[j] + 2*k3[j] + k4[j])*h/6;
     }
     //        t += h;
@@ -73,41 +75,44 @@ double Simulation::setGravity(double _g)
 }
 
 // dv/dt =
-double Simulation::f1(double t, double *x)
+double Simulation::f1(double t, double *x, CoefficientSpline *_coePtr)
 {
-    //    theta =  ofRadToDeg( atan2f(x[1], x[0]) );
-    //    if (theta < 0) {
-    //        theta *= -1;
-    //    }
-    //    float Cd_val = cSpline->getInterpolation( theta, Cd);
-    //    float Cl_val = cSpline.getInterpolation( theta, Cl);
-    //    return -(rho*(Cd*cos(theta) + Cl*sin(theta))*area)/(2*m);//vxa
-    //    return -( rho*(x[0]*x[0] + x[1]*x[1])*area*(Cd_val*cos(theta) + Cl_val*sin(theta)) )/(2*m);//vxa
+        theta =  ofRadToDeg( atan2f(x[1], x[0]) );
+        if (theta < 0) {
+            theta *= -1;
+        }
+        float Cd_val = _coePtr->getInterpolation( theta, Cd);
+        float Cl_val = _coePtr->getInterpolation( theta, Cl);
+//        return -( rho*(x[0]*x[0] + x[1]*x[1])*area*(Cd_val*cos(theta) + Cl_val*sin(theta)) )/(2*m);//vxa
     return 0;
 }
 
 // dw/dt =
-double Simulation::f2(double t, double *x)
+double Simulation::f2(double t, double *x, CoefficientSpline *_coePtr)
 {
-    //    theta =  ofRadToDeg( atan2f(x[1], x[0]) );
-    //    if (theta < 0) {
-    //        theta *= -1;
-    //    }
-    //    float Cd_val = cSpline.getInterpolation( theta, Cd);
-    //    float Cl_val = cSpline.getInterpolation( theta, Cl);
-    //    return -( rho* x[1]*x[1]*area*(Cd*sin(theta) - Cl*cos(theta)) )/(2*m) + m*g;//vya
+        theta =  ofRadToDeg( atan2f(x[1], x[0]) );
+        if (theta < 0) {
+            theta *= -1;
+        }
+        float Cd_val = _coePtr->getInterpolation( theta, Cd);
+        float Cl_val = _coePtr->getInterpolation( theta, Cl);
+    
+    
+//    cout << theta << ":" << Cd_val<< endl; //めちゃ重くなる
+    
+//        return -( rho*(x[0]*x[0] + x[1]*x[1])*area*(Cd_val*sin(theta) - Cl_val*cos(theta)) )/(2*m) + m*g; //vya
     //    return -( rho*(x[0]*x[0] + x[1]*x[1])*area*(Cd_val*sin(theta) - Cl_val*cos(theta)) )/(2*m) + m*g;//vya
     return m*g;
 }
 
 // dx/dt =
-double Simulation::f3(double t, double *x)
+double Simulation::f3(double t, double *x, CoefficientSpline *_coePtr)
 {
     return x[0]; //vx
 }
 
 // dy/dt =
-double Simulation::f4(double t, double *x)
+double Simulation::f4(double t, double *x, CoefficientSpline *_coePtr)
 {
     return x[1]; //vy
 }
@@ -127,7 +132,7 @@ void Simulation::update()
     x[3] = pos0.y;
  
     double h;
-    double (*f[4])(double , double*);
+    double (*f[4])(double , double*, CoefficientSpline*);
     
     f[0] = f1;
     f[1] = f2;
@@ -168,4 +173,8 @@ void Simulation::draw()
 vector <ofVec3f> Simulation::getPos()
 {
     return points;
+}
+
+void Simulation::setCoeSpline(CoefficientSpline *_coePtr) {
+    coePtr = _coePtr;
 }

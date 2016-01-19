@@ -4,9 +4,18 @@
 #include "Simulation.h"
 #include "CoefficientSpline.h"
 
+#include "ofxOsc.h"
+#include "natOscMocapDataReceiver.h"
+
 #define NUM_POS 20
 
-//CoefficientSpline* goSpline;
+#define PORT_FROM_CORTEX 12345
+#define PORT_TO_UNITY 12345
+#define NUM_MSG_STRINGS 20
+
+#define TEMPLATE_RACKET_NUM 2
+#define TEMPLATE_RACKET_MARKER_NUM 4
+
 
 class ofApp : public ofBaseApp{
 
@@ -42,6 +51,18 @@ class ofApp : public ofBaseApp{
     vector <ofVec3f> bpos[2];
     
     ofVec3f mouse;
+    
+    // receive from Cortex
+    ofTrueTypeFont font;
+    ofxOscReceiver receiver;
+    int current_msg_string;
+    string msg_strings[NUM_MSG_STRINGS];
+    float timers[NUM_MSG_STRINGS];
+    nat::OscMocapDataReceiver oscMocapReciever;
+    ofVec3f racketMarkerPos[TEMPLATE_RACKET_NUM][TEMPLATE_RACKET_MARKER_NUM];
+    
+    // send to Unity
+    ofxOscSender sender;
     
     ofVec3f shuttlePos;
     vector <ofVec3f> bspos;
