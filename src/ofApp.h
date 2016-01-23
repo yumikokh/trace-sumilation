@@ -10,7 +10,7 @@
 #define NUM_POS 20
 
 #define PORT_FROM_CORTEX 12345
-#define PORT_TO_UNITY 12345
+#define PORT_TO_UNITY 8810
 #define NUM_MSG_STRINGS 20
 
 #define TEMPLATE_RACKET_NUM 2
@@ -27,12 +27,12 @@ class ofApp : public ofBaseApp{
 		void keyPressed(int key);
 		void keyReleased(int key);
 		void mouseMoved(int x, int y );
-//		void mouseDragged(int x, int y, int button);
-//		void mousePressed(int x, int y, int button);
-//		void mouseReleased(int x, int y, int button);
-//		void windowResized(int w, int h);
-//		void dragEvent(ofDragInfo dragInfo);
-//		void gotMessage(ofMessage msg);
+		void mouseDragged(int x, int y, int button);
+		void mousePressed(int x, int y, int button);
+		void mouseReleased(int x, int y, int button);
+		void windowResized(int w, int h);
+		void dragEvent(ofDragInfo dragInfo);
+		void gotMessage(ofMessage msg);
     
     
     float unit;
@@ -71,6 +71,7 @@ class ofApp : public ofBaseApp{
     ofVec3f initVel;
     float initDeg;
     float initRad;
+	float initRadZ;
     
     float curTime;
     float preTime;
@@ -78,5 +79,9 @@ class ofApp : public ofBaseApp{
     
     bool shotSwitch;
     bool area_1, area_2;
+
+	bool landingFlag;
+
+	ofEasyCam camera;
 		
 };

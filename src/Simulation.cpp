@@ -13,6 +13,7 @@ ofVec3f Simulation::v0, Simulation::v, Simulation::pos0;
 double Simulation::theta;
 double Simulation::area, Simulation::theta0, Simulation::m, Simulation::rho;
 double Simulation::g;
+float Simulation::thetaZ0;
 
 CoefficientSpline Simulation::*coePtr;
 
@@ -23,7 +24,8 @@ Simulation::Simulation() {
 void Simulation::Runge_Kutta(double (*f[])(double t, double *x, CoefficientSpline *_coePtr), double t0, double *x, double tn, int div, int num)
 {
     
-    double k1[num], k2[num], k3[num], k4[num], temp[num];
+	const int nnum = 4;
+    double k1[nnum], k2[nnum], k3[nnum], k4[nnum], temp[nnum];
     
     double h = (tn - t0);
     //    if(div) h /= div;
@@ -31,23 +33,23 @@ void Simulation::Runge_Kutta(double (*f[])(double t, double *x, CoefficientSplin
     double t = t0;
     
     //    for(int i=0; i<div; i++){
-    for(int j=0; j<num; j++){
+    for(int j=0; j<nnum; j++){
         k1[j] = (*f[j])(t, x, coePtr);
         temp[j] = x[j] + h*k1[j]/2;
     }
-    for(int j=0; j<num; j++){
+    for(int j=0; j<nnum; j++){
         k2[j] = (*f[j])(t+h/2, temp, coePtr);
     }
-    for(int j=0; j<num; j++){
+    for(int j=0; j<nnum; j++){
         temp[j] = x[j] + h*k2[j]/2;
     }
-    for(int j=0; j<num; j++){
+    for(int j=0; j<nnum; j++){
         k3[j] = (*f[j])(t+h/2, temp, coePtr);
     }
-    for(int j=0; j<num; j++){
+    for(int j=0; j<nnum; j++){
         temp[j] = x[j] + h*k3[j];
     }
-    for(int j=0; j<num; j++){
+    for(int j=0; j<nnum; j++){
         k4[j] = (*f[j])(t+h, temp, coePtr);
         x[j] += (k1[j] + 2*k2[j] + 2*k3[j] + k4[j])*h/6;
     }
@@ -55,7 +57,7 @@ void Simulation::Runge_Kutta(double (*f[])(double t, double *x, CoefficientSplin
     //    }
 }
 
-double Simulation::setValue(double _m, double _area ,double _cd, double _cl, double _theta, ofVec3f _velocity, double _rho, ofVec3f _initPos)
+void Simulation::setValue(double _m, double _area ,double _cd, double _cl, double _theta, ofVec3f _velocity, double _rho, ofVec3f _initPos,  float _thetaZ)
 {
     m = _m; //kg
     area = _area; //m2
@@ -66,10 +68,11 @@ double Simulation::setValue(double _m, double _area ,double _cd, double _cl, dou
     
     v0 = _velocity;
     pos0 = _initPos;
+	thetaZ0 = _thetaZ;
     
 }
 
-double Simulation::setGravity(double _g)
+void Simulation::setGravity(double _g)
 {
     g = _g;
 }
@@ -128,8 +131,9 @@ void Simulation::update()
     // 初期値
     x[0] = v0.x;
     x[1] = v0.y;
-    x[2] = pos0.x;
-    x[3] = pos0.y;
+    /*x[2] = pos0.x;
+	x[3] = pos0.y;*/
+	x[2] = x[3] = 0;
  
     double h;
     double (*f[4])(double , double*, CoefficientSpline*);
@@ -144,8 +148,17 @@ void Simulation::update()
     for(int i=0; i<LOOP; i++){
         //Runge_Kutta(double (*f[])(double t, double *x), double t0, double *x, double tn, int div, int num)
         Runge_Kutta(f, t, x, t+h, 1, 4);
-        ofVec3f p = ofVec3f(x[2], x[3], 0);
-        points.push_back(p);
+        ofVec3f pre = ofVec3f(x[2], x[3], 0);
+
+		ofMatrix4x4 m;
+		m.set ( cos(thetaZ0), 0, -sin(thetaZ0), pos0.x,
+				0, 1, 0, pos0.y,
+				sin(thetaZ0), 0, cos(thetaZ0), 0,
+				0, 0, 0, 1);
+
+		ofVec3f post = m * pre;
+
+        points.push_back(post);
         //        printf("%f %f \n",  x[2], x[3]);
         t+=h;
     }
@@ -162,8 +175,7 @@ void Simulation::draw()
     ofSetColor(255);
     ofBeginShape();
     for(int i=0; i<LOOP; i++){
-        //        ofVertex(points[i].x, points[i].y);
-        ofVertex(points[i].x, points[i].y);
+        ofVertex(points[i].x, points[i].y, points[i].z);
     }
     ofEndShape();
     ofPopStyle();
