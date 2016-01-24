@@ -23,8 +23,8 @@ public:
     static double f3(double t, double *x, CoefficientSpline *_coePtr);
     static double f4(double t, double *x, CoefficientSpline *_coePtr);
     
-    static double setValue(double _m, double _area ,double _cd, double _cl, double _theta, ofVec3f _velocity, double _rho, ofVec3f _pos);
-    static double setGravity(double g);
+    static void setValue(double _m, double _area ,double _cd, double _cl, double _theta, ofVec3f _velocity, double _rho, ofVec3f _pos, float _thetaZ);
+    static void setGravity(double g);
     void update();
     void draw();
     vector <ofVec3f> getPos();
@@ -35,6 +35,7 @@ public:
     static double area, m, rho;
     static double theta, theta0;
     static double g;
+	static float thetaZ0;
     
     vector <ofVec3f> points;
 //    ofVec2f point;
