@@ -77,6 +77,11 @@ void Simulation::setGravity(double _g)
     g = _g;
 }
 
+void Simulation::setMagValue(float _mag, ofVec3f _offset)
+{
+    magValue = _mag;
+	offset = _offset;
+}
 // dv/dt =
 double Simulation::f1(double t, double *x, CoefficientSpline *_coePtr)
 {
@@ -125,7 +130,7 @@ double Simulation::f4(double t, double *x, CoefficientSpline *_coePtr)
 void Simulation::update()
 {
     
-    double t=0, tn=10000; //1s
+    double t=0, tn=1; //1s
     double x[4];
     
     // 初期値
@@ -151,8 +156,8 @@ void Simulation::update()
         ofVec3f pre = ofVec3f(x[2], x[3], 0);
 
 		ofMatrix4x4 m;
-		m.set ( cos(thetaZ0), 0, -sin(thetaZ0), pos0.x,
-				0, 1, 0, pos0.y,
+		m.set (  cos(thetaZ0), 0, -sin(thetaZ0), pos0.x,
+				0,  1, 0, pos0.y,
 				sin(thetaZ0), 0, cos(thetaZ0), 0,
 				0, 0, 0, 1);
 
@@ -162,6 +167,7 @@ void Simulation::update()
         //        printf("%f %f \n",  x[2], x[3]);
         t+=h;
     }
+
     
 }
 

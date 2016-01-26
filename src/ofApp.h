@@ -6,6 +6,8 @@
 
 #include "ofxOsc.h"
 #include "natOscMocapDataReceiver.h"
+#include "ofxGui.h"
+#include "ofxXmlSettings.h"
 
 #define NUM_POS 20
 
@@ -84,6 +86,10 @@ class ofApp : public ofBaseApp{
 
 	ofEasyCam camera;
 
-	float test;
+
+	//í≤êÆópGUI
+	ofxPanel gui;
+	ofxFloatSlider magValue;
+	ofxVec3Slider offset;
 		
 };
