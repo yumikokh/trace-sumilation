@@ -185,7 +185,6 @@ void ofApp::update(){
 	std::string sendName;
 
 	// シャトル
-
 	sendName = "/shuttlePos/";
 	m.setAddress(sendName);
 	m.addFloatArg(shuttlePos.x);
@@ -195,23 +194,18 @@ void ofApp::update(){
 	m.clear();
 
 	// ラケット
-
-	sendName = "/racket01";
-	m.setAddress(sendName);
-	for (int j = 0; j < 3; j++) {
-		m.addFloatArg(racketMarkerPos[0][j].x);
-		m.addFloatArg(racketMarkerPos[0][j].y);
-		m.addFloatArg(racketMarkerPos[0][j].z);
-	}
-
-	sendName = "/racket02";
-	m.setAddress(sendName);
-	for (int j = 0; j < 3; j++) {
-		m.addFloatArg(racketMarkerPos[1][j].x);
-		m.addFloatArg(racketMarkerPos[1][j].y);
-		m.addFloatArg(racketMarkerPos[1][j].z);
-	}
-
+    for (int i=0; i<TEMPLATE_RACKET_NUM; i++) {
+        for (int j = 0; j < 3; j++) {
+            sendName = "/racket0" + ofToString(i+1) + ofToString(j);
+            m.setAddress(sendName);
+            m.addFloatArg(racketMarkerPos[i][j].x);
+            m.addFloatArg(racketMarkerPos[i][j].y);
+            m.addFloatArg(racketMarkerPos[i][j].z);
+            sender.sendMessage(m);
+            m.clear();
+        }
+    }
+	
 
 
 }
