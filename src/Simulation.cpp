@@ -162,9 +162,9 @@ void Simulation::update()
 				0, 0, 0, 1);
 
 		ofVec3f post = m * pre;
-		post /= magValue;
-		//post /= magValue;//error
-		post += offset;
+//		post /= magValue;
+//		//post /= magValue;//error
+//		post += offset;
 
         points.push_back(post);
         //        printf("%f %f \n",  x[2], x[3]);

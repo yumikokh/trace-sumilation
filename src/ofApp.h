@@ -76,10 +76,6 @@ class ofApp : public ofBaseApp{
     float initRad;
 	float initRadZ;
     
-    float curTime;
-    float preTime;
-    float elapsedTime;
-    
     bool shotSwitch;
     bool area_1, area_2;
 
@@ -92,6 +88,5 @@ class ofApp : public ofBaseApp{
 	ofxPanel gui;
 	ofxFloatSlider magValue;
 	ofxVec3Slider offset;
-	ofxFloatSlider magScreen;
 		
 };
