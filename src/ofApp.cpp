@@ -9,6 +9,13 @@ void ofApp::setup(){
 
 	ofBackground(ofColor::black);
 
+	//実空間と画面上の位置をあわせる
+	gui.setup();
+	gui.add(magValue.setup("magValue", 5.f, 1, 1000));
+	ofVec3f val = ofVec3f(100);
+	gui.add( offset.setup("offset", ofVec3f(0,0,-10), -val, val) );
+	gui.add(magScreen.setup("magValueforTest", 50, 1, 1000));
+
 	cSpline.readData();
 	simu.setCoeSpline(&cSpline);
 
@@ -17,9 +24,15 @@ void ofApp::setup(){
 	rho = 1.205;
 	gravity = -9.807 *500;
 
-	velocity = ofVec3f(30, 20);
+	velocity = ofVec3f(0);
 	racketPos[0] = racketPos[1] = ofVec3f(0);
-	shuttlePos = ofVec3f(400, 200);
+	/*initPos = ofVec3f(-3, 3, -12);*/
+	initPos = ofVec3f(-3, 3, 0); //for mouse check
+	//initPos.x /= (float)maValue ;
+	//initPos.y /=  (float)magValue ;//なぜかココダケout of range..
+	//initPos.z /= (float)magValue ;
+	//initPos += offset;
+	shuttlePos = initPos;
 
 	initRadZ = 0;
 
@@ -38,13 +51,6 @@ void ofApp::setup(){
 	sender.setup("localhost", PORT_TO_UNITY);
 
 
-	//実空間と画面上の位置をあわせる
-	gui.setup();
-	gui.add(magValue.setup("magValue", 300, -1000, 1000));
-	ofVec3f val = ofVec3f(1000);
-	gui.add( offset.setup("offset", ofVec3f(), -val, val) );
-
-
 	//static double setValue(double m, double area ,double Cd, double Cl, double theta, double rho);
 	simu.setValue( mass, area, .001*1.3, .01*1.7, ofDegToRad(180), velocity, rho, shuttlePos, 0);
 	simu.setGravity(gravity);
@@ -60,12 +66,12 @@ void ofApp::update(){
 
 	//--> PCテスト用
 	if (0 < mouse.x) {
-		racketPos[0] = mouse;
+		racketPos[0] = mouse* magValue;
 	}else {
-		racketPos[1] = mouse;
+		racketPos[1] = mouse* magValue;
 	}
 
-	//--> Cortex
+	//--> Get from Cortex
 	while(oscMocapReciever.hasWaitingMessages()){
 		float **unBuf = oscMocapReciever.getTemplateMarkerData(0, "/racket01");
 		for (int i = 0; i < TEMPLATE_RACKET_MARKER_NUM; i++) {
@@ -81,7 +87,7 @@ void ofApp::update(){
 			racketMarkerPos[1][i].z = unBuf2[i][2]/1000 * magValue + offset->z;
 		}
 
-		/*racketPos[0] = racketMarkerPos[0][0];
+		/*	racketPos[0] = racketMarkerPos[0][0];
 		racketPos[1] = racketMarkerPos[1][0];*/
 	}
 
@@ -95,7 +101,9 @@ void ofApp::update(){
 
 	//--> シャトルにあたったとき
 	for( int i = 0; i < TEMPLATE_RACKET_NUM; i++) {
-		if ( 20 > pow( (racketPos[i].x-shuttlePos.x)*(racketPos[i].x-shuttlePos.x) + (racketPos[i].y- shuttlePos.y)*(racketPos[i].y- shuttlePos.y) + (racketPos[i].z- shuttlePos.z)*(racketPos[i].z- shuttlePos.z), 0.5f ) ) {
+		//if ( 1 > pow( (racketPos[i].x-shuttlePos.x)*(racketPos[i].x-shuttlePos.x) + (racketPos[i].y- shuttlePos.y)*(racketPos[i].y- shuttlePos.y) + (racketPos[i].z- shuttlePos.z)*(racketPos[i].z- shuttlePos.z), 0.5f ) ) 
+		if (10 > ofDist(racketPos[i].x, racketPos[i].y, shuttlePos.x, shuttlePos.y) )
+		{
 
 			//--> 初速度
 			vector<ofVec3f>::iterator fitr = bpos[i].end() - 5;
@@ -116,6 +124,7 @@ void ofApp::update(){
 			}
 
 			simu.setValue( mass, area, cSpline.getInterpolation( initDeg, Cd), cSpline.getInterpolation( initDeg, Cl), ofDegToRad(initDeg), initVel, rho, shuttlePos,  initRadZ);
+			simu.setMagValue(magValue, offset);
 			simu.update();
 
 			bspos.clear();
@@ -129,7 +138,7 @@ void ofApp::update(){
 	}
 
 	// 1sごとに軌跡を更新
-	if (curNum >= LOOP-1)
+	if (curNum >= LOOP-2)
 	{
 		//--> 初速度
 		vector<ofVec3f>::iterator fitr = bspos.end() - 5;
@@ -150,6 +159,7 @@ void ofApp::update(){
 		}
 
 		simu.setValue( mass, area, cSpline.getInterpolation( initDeg, Cd), cSpline.getInterpolation( initDeg, Cl), ofDegToRad(initDeg), initVel, rho, shuttlePos,  initRadZ);
+		simu.setMagValue(magValue, offset);
 		simu.update();
 
 		bspos.clear();
@@ -162,8 +172,6 @@ void ofApp::update(){
 		curNum ++;
 	}
 
-	
-
 
 	if(shuttlePos.y < 0 ) {
 		//float tempX = 0;
@@ -171,7 +179,7 @@ void ofApp::update(){
 		landingFlag = true;
 
 		bspos.clear();
-		shuttlePos = ofVec3f(300, 200);
+		shuttlePos = initPos;
 	}else {
 		landingFlag = false;
 	}
@@ -194,18 +202,18 @@ void ofApp::update(){
 	m.clear();
 
 	// ラケット
-    for (int i=0; i<TEMPLATE_RACKET_NUM; i++) {
-        for (int j = 0; j < 3; j++) {
-            sendName = "/racket0" + ofToString(i+1) + ofToString(j);
-            m.setAddress(sendName);
-            m.addFloatArg(racketMarkerPos[i][j].x);
-            m.addFloatArg(racketMarkerPos[i][j].y);
-            m.addFloatArg(racketMarkerPos[i][j].z);
-            sender.sendMessage(m);
-            m.clear();
-        }
-    }
-	
+	for (int i=0; i<TEMPLATE_RACKET_NUM; i++) {
+		for (int j = 0; j < 3; j++) {
+			sendName = "/racket0" + ofToString(i+1) + ofToString(j);
+			m.setAddress(sendName);
+			m.addFloatArg(racketMarkerPos[i][j].x);
+			m.addFloatArg(racketMarkerPos[i][j].y);
+			m.addFloatArg(racketMarkerPos[i][j].z);
+			sender.sendMessage(m);
+			m.clear();
+		}
+	}
+
 
 
 }
@@ -219,9 +227,10 @@ void ofApp::draw(){
 	glDisable(GL_DEPTH_TEST);
 	gui.draw();
 	//    ofDrawBitmapString(ofGetTimestampString(), 50, 50);
-	ofDrawBitmapString(ofToString(ofGetFrameRate()) + "fps", 50, 70);
-	ofDrawBitmapString("racket01:" + ofToString(racketMarkerPos[0][0]), 50, 80);
-	ofDrawBitmapString("racket02:" + ofToString(racketMarkerPos[1][0]), 50, 90);
+	ofDrawBitmapString(ofToString(ofGetFrameRate()) + "fps", 50, 40);
+	ofDrawBitmapString("racket01:" + ofToString(racketPos[0]), 50, 60);
+	ofDrawBitmapString("racket02:" + ofToString(racketPos[1]), 50, 70);
+	ofDrawBitmapString("shuttle:" + ofToString(shuttlePos), 50, 80);
 	ofDrawBitmapString("initVelocity: " + ofToString(initVel), 50, 100);
 	ofDrawBitmapString("initDegree: " + ofToString(initDeg), 50, 120);
 	ofDrawBitmapString("Cd: "+ofToString(cSpline.getInterpolation( initDeg, Cd)), 50, 150 );
@@ -236,23 +245,27 @@ void ofApp::draw(){
 	ofScale( 1, -1, 1);
 
 	//--> カメラ設定
-	//camera.begin();
+	camera.begin();
 	//camera.setPosition(racketPos[0]);
 	//camera.setDistance(100);
 
-	//--> ラケット描画
+	//--> ラケットのマウス、判定マーカー描画
+	/*ofSetColor(ofColor::red);
+	ofDrawSphere(racketPos[0].x*magScreen, racketPos[0].y*magScreen, 20);
+	ofSetColor(ofColor::blue);
+	ofDrawSphere(racketPos[1].x*magScreen, racketPos[1].y*magScreen, 20);*/
 	ofSetColor(ofColor::red);
 	ofDrawSphere(racketPos[0].x, racketPos[0].y, 20);
 	ofSetColor(ofColor::blue);
 	ofDrawSphere(racketPos[1].x, racketPos[1].y, 20);
 
-
+	//--> ラケットマーカー
 	for (int j = 0; j < TEMPLATE_RACKET_MARKER_NUM; j++) {
 		ofSetColor(ofColor::red);
-		ofDrawSphere(racketMarkerPos[0][j], 10);
+		ofDrawSphere(racketMarkerPos[0][j]*magScreen, 10);
 
 		ofSetColor(ofColor::blue);
-		ofDrawSphere(racketMarkerPos[1][j], 10);
+		ofDrawSphere(racketMarkerPos[1][j]*magScreen, 10);
 	}
 
 	//    glBegin( GL_LINE_STRIP );
@@ -275,13 +288,15 @@ void ofApp::draw(){
 	}else {
 		ofSetColor(ofColor::green);
 	}
-	ofDrawSphere(shuttlePos.x, shuttlePos.y, shuttlePos.z, 10);
+	//ofDrawSphere(shuttlePos.x*magScreen, shuttlePos.y*magScreen, shuttlePos.z*magScreen, 10);
+	ofDrawSphere(shuttlePos.x*magScreen, shuttlePos.y*magScreen, shuttlePos.z, 10);
+
 
 	//--> 軸描画
 	ofDrawAxis(1000);
 
 
-	//camera.end();
+	camera.end();
 }
 
 //--------------------------------------------------------------
@@ -291,7 +306,7 @@ void ofApp::keyPressed(int key){
 	case 'f':
 		ofToggleFullscreen();
 		break;
-	case 's':
+	case 'd':
 		bspos.clear();
 		shuttlePos = ofVec3f(300, 200);
 		break;

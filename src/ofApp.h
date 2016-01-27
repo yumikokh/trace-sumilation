@@ -70,6 +70,7 @@ class ofApp : public ofBaseApp{
     vector <ofVec3f> bspos;
     int curNum;
     
+	ofVec3f initPos;
     ofVec3f initVel;
     float initDeg;
     float initRad;
@@ -91,5 +92,6 @@ class ofApp : public ofBaseApp{
 	ofxPanel gui;
 	ofxFloatSlider magValue;
 	ofxVec3Slider offset;
+	ofxFloatSlider magScreen;
 		
 };
