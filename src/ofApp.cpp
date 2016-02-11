@@ -11,26 +11,25 @@ void ofApp::setup(){
 
 	//実空間と画面上の位置をあわせる
 	gui.setup();
-	gui.add(magValue.setup("magValue", 5.f, 1, 1000));
+	gui.add(magValue.setup("magValue", 1000, 1, 1000));
 	ofVec3f val = ofVec3f(100);
-	gui.add( offset.setup("offset", ofVec3f(0,0,-10), -val, val) );
+	gui.add( offset.setup("offset", ofVec3f(0,0,0), -val, val) );
 
 	cSpline.readData();
 	simu.setCoeSpline(&cSpline);
 
-	mass = .001*4.8 *10;
-	area = .001*33*33*PI;// Skirt Diameter = 66mm
+	//m to mm or kg to g
+	unit = 1;
+
+	mass = 4.8 *10 / unit;
+	area = 33*33*PI / unit;// Skirt Diameter = 66mm
 	rho = 1.205;
 	gravity = -9.807 *500;
 
 	velocity = ofVec3f(0);
 	racketPos[0] = racketPos[1] = ofVec3f(0);
 	/*initPos = ofVec3f(-3, 3, -12);*/
-	initPos = ofVec3f(-200, 160, 0); //for mouse check
-	//initPos.x /= (float)maValue ;
-	//initPos.y /=  (float)magValue ;//なぜかココダケout of range..
-	//initPos.z /= (float)magValue ;
-	//initPos += offset;
+	initPos = ofVec3f(400, 800, 0); //for mouse check
 	shuttlePos = initPos;
 
 	initRadZ = 0;
@@ -44,6 +43,7 @@ void ofApp::setup(){
 	oscMocapReciever.isInitialized();
 
 	sender.setup("localhost", PORT_TO_UNITY);
+	sender2.setup("10.1.1.38", PORT_TO_UNITY);
 
 
 	//static double setValue(double m, double area ,double Cd, double Cl, double theta, double rho);
@@ -60,30 +60,64 @@ void ofApp::setup(){
 void ofApp::update(){
 
 	//--> PCテスト用
-	if (0 < mouse.x) {
-		racketPos[0] = mouse;
-	}else {
-		racketPos[1] = mouse;
-	}
+	//if (0 < mouse.x) {
+	//	racketPos[0] = mouse;
+	//}else {
+	//	racketPos[1] = mouse;
+	//}
 
 	//--> Get from Cortex
 	while(oscMocapReciever.hasWaitingMessages()){
 		float **unBuf = oscMocapReciever.getTemplateMarkerData(0, "/racket01");
 		for (int i = 0; i < TEMPLATE_RACKET_MARKER_NUM; i++) {
-			racketMarkerPos[0][i].x = unBuf[i][0]/1000; // 1mmから1m単位に
-			racketMarkerPos[0][i].y = unBuf[i][1]/1000;
-			racketMarkerPos[0][i].z = unBuf[i][2]/1000;
+			racketMarkerPos[0][i].x = unBuf[i][0]; 
+			racketMarkerPos[0][i].y = unBuf[i][1];
+			racketMarkerPos[0][i].z = unBuf[i][2];
+			/*racketMarkerPos[0][i].x /= unit;
+			racketMarkerPos[0][i].y /= unit;
+			racketMarkerPos[0][i].z /= unit;*/
+
+			(float)racketMarkerPos[0][i].x = (float) racketMarkerPos[0][i].x/unit ;
+			(float)racketMarkerPos[0][i].y = (float) racketMarkerPos[0][i].y/unit ;
+			(float)racketMarkerPos[0][i].z = (float) racketMarkerPos[0][i].z/unit ;
 		}
 
 		float **unBuf2 = oscMocapReciever.getTemplateMarkerData(1, "/racket02");
 		for (int i = 0; i < TEMPLATE_RACKET_MARKER_NUM; i++) {
-			racketMarkerPos[1][i].x = unBuf2[i][0]/1000;
-			racketMarkerPos[1][i].y = unBuf2[i][1]/1000;
-			racketMarkerPos[1][i].z = unBuf2[i][2]/1000;
+			racketMarkerPos[1][i].x = unBuf2[i][0];
+			racketMarkerPos[1][i].y = unBuf2[i][1];
+			racketMarkerPos[1][i].z = unBuf2[i][2];
+		/*	racketMarkerPos[1][i].x /= unit;
+			racketMarkerPos[1][i].y /= unit;
+			racketMarkerPos[1][i].z /= unit;*/
 		}
 
-		/*	racketPos[0] = racketMarkerPos[0][0];
-		racketPos[1] = racketMarkerPos[1][0];*/
+		racketPos[0] = racketMarkerPos[0][0];
+		racketPos[1] = racketMarkerPos[1][0];
+		
+
+			float **unBuf3 = oscMocapReciever.getTemplateMarkerData(0, "/player01");
+		for (int i = 0; i < 2; i++) {
+			playerMarkerPos[0][i].x = unBuf3[i][0];
+			playerMarkerPos[0][i].y = unBuf3[i][1];
+			playerMarkerPos[0][i].z = unBuf3[i][2];
+		/*	playerMarkerPos[0][i].x /= unit;
+			playerMarkerPos[0][i].y /= unit;
+			playerMarkerPos[0][i].z /= unit;*/
+		}
+
+		float **unBuf4 = oscMocapReciever.getTemplateMarkerData(1, "/player02");
+		for (int i = 0; i < 2; i++) {
+			playerMarkerPos[1][i].x = unBuf4[i][0];
+			playerMarkerPos[1][i].y = unBuf4[i][1];
+			playerMarkerPos[1][i].z = unBuf4[i][2];
+		/*	playerMarkerPos[1][i].x /= unit;
+			playerMarkerPos[1][i].y /= unit;
+			playerMarkerPos[1][i].z /= unit;*/
+		}
+
+		playerPos[0] = (playerMarkerPos[0][0]+playerMarkerPos[0][1])/2;
+		playerPos[1] = (playerMarkerPos[1][0]+playerMarkerPos[1][1])/2;
 	}
 
 	//--> ラケット位置バッファの保存
@@ -96,8 +130,8 @@ void ofApp::update(){
 
 	//--> シャトルにあたったとき
 	for( int i = 0; i < TEMPLATE_RACKET_NUM; i++) {
-		//if ( 1 > pow( (racketPos[i].x-shuttlePos.x)*(racketPos[i].x-shuttlePos.x) + (racketPos[i].y- shuttlePos.y)*(racketPos[i].y- shuttlePos.y) + (racketPos[i].z- shuttlePos.z)*(racketPos[i].z- shuttlePos.z), 0.5f ) ) 
-		if (20 > ofDist(racketPos[i].x, racketPos[i].y, shuttlePos.x, shuttlePos.y) )
+		if ( 50 > pow( (racketPos[i].x-shuttlePos.x)*(racketPos[i].x-shuttlePos.x) + (racketPos[i].y- shuttlePos.y)*(racketPos[i].y- shuttlePos.y) + (racketPos[i].z- shuttlePos.z)*(racketPos[i].z- shuttlePos.z), 0.5f ) ) 
+		//if (20 > ofDist(racketPos[i].x, racketPos[i].y, shuttlePos.x, shuttlePos.y) )
 		{
 
 			//--> 初速度
@@ -183,6 +217,7 @@ void ofApp::update(){
 
 
 	//--> send to Unity
+	// 1mmから1m単位に
 
 	ofxOscMessage m;
 	std::string sendName;
@@ -190,10 +225,11 @@ void ofApp::update(){
 	// シャトル
 	sendName = "/shuttlePos/";
 	m.setAddress(sendName);
-	m.addFloatArg(shuttlePos.x*magValue + offset->x);
-	m.addFloatArg(shuttlePos.y*magValue + offset->y);
-	m.addFloatArg(shuttlePos.z*magValue + offset->z);
+	m.addFloatArg(shuttlePos.x/magValue + offset->x);
+	m.addFloatArg(shuttlePos.y/magValue + offset->y);
+	m.addFloatArg(shuttlePos.z/magValue + offset->z);
 	sender.sendMessage(m);
+	sender2.sendMessage(m);
 	m.clear();
 
 	// ラケット
@@ -201,14 +237,26 @@ void ofApp::update(){
 		for (int j = 0; j < 3; j++) {
 			sendName = "/racket0" + ofToString(i+1) + ofToString(j);
 			m.setAddress(sendName);
-			m.addFloatArg(racketMarkerPos[i][j].x*magValue + offset->x);
-			m.addFloatArg(racketMarkerPos[i][j].y*magValue + offset->y);
-			m.addFloatArg(racketMarkerPos[i][j].z*magValue + offset->z);
+			m.addFloatArg(racketMarkerPos[i][j].x/magValue + offset->x);
+			m.addFloatArg(racketMarkerPos[i][j].y/magValue + offset->y);
+			m.addFloatArg(racketMarkerPos[i][j].z/magValue + offset->z);
 			sender.sendMessage(m);
+			sender2.sendMessage(m);
 			m.clear();
 		}
 	}
 
+	//プレイヤー（視点）
+	for (int i=0; i<TEMPLATE_RACKET_NUM; i++) {
+			sendName = "/player0" + ofToString(i+1);
+			m.setAddress(sendName);
+			m.addFloatArg(playerPos[i].x/magValue + offset->x);
+			m.addFloatArg(playerPos[i].y/magValue + offset->y);
+			m.addFloatArg(playerPos[i].z/magValue + offset->z);
+			sender.sendMessage(m);
+			sender2.sendMessage(m);
+			m.clear();
+	}
 
 
 }
@@ -246,17 +294,17 @@ void ofApp::draw(){
 
 	//--> ラケットのマウス、判定マーカー描画
 	ofSetColor(ofColor::red);
-	ofDrawSphere(racketPos[0].x, racketPos[0].y, 20);
+	ofDrawSphere(racketPos[0].x*unit, racketPos[0].y*unit, 20);
 	ofSetColor(ofColor::blue);
-	ofDrawSphere(racketPos[1].x, racketPos[1].y, 20);
+	ofDrawSphere(racketPos[1].x*unit, racketPos[1].y*unit, 20);
 
 	//--> ラケットマーカー5つ
 	for (int j = 0; j < TEMPLATE_RACKET_MARKER_NUM; j++) {
 		ofSetColor(ofColor::red);
-		ofDrawSphere(racketMarkerPos[0][j], 10);
+		ofDrawSphere(racketMarkerPos[0][j]*unit, 10);
 
 		ofSetColor(ofColor::blue);
-		ofDrawSphere(racketMarkerPos[1][j], 10);
+		ofDrawSphere(racketMarkerPos[1][j]*unit, 10);
 	}
 
 	//    glBegin( GL_LINE_STRIP );
@@ -279,8 +327,8 @@ void ofApp::draw(){
 	}else {
 		ofSetColor(ofColor::green);
 	}
-//	ofDrawSphere(shuttlePos.x*magScreen, shuttlePos.y*magScreen, shuttlePos.z*magScreen, 10);
-	ofDrawSphere(shuttlePos.x, shuttlePos.y, shuttlePos.z, 10);
+	//	ofDrawSphere(shuttlePos.x*magScreen, shuttlePos.y*magScreen, shuttlePos.z*magScreen, 10);
+	ofDrawSphere(shuttlePos.x*unit, shuttlePos.y*unit, shuttlePos.z*unit, 10);
 
 
 	//--> 軸描画
@@ -315,7 +363,7 @@ void ofApp::keyReleased(int key){
 //--------------------------------------------------------------
 void ofApp::mouseMoved(int x, int y ){
 
-	mouse = ofVec3f(x - ofGetWidth()/2, -y + ofGetHeight(), 0);
+	mouse = ofVec3f(x - ofGetWidth()/2, -y + ofGetHeight(), 0)/unit;
 
 }
 //--------------------------------------------------------------
