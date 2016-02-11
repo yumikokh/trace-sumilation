@@ -20,8 +20,7 @@ public class RacketController : MonoBehaviour
 
     private GameObject shuttleObj;
 
-    private GameObject player001;
-    private GameObject player002;
+    private GameObject playerObj;
 
     public Vector3 sm0;
 	public Vector3 sm1;
@@ -35,7 +34,9 @@ public class RacketController : MonoBehaviour
     public Vector3 pl1;
     public Vector3 pl2;
 
-    public float smaller = 100;
+    public float smaller = 1;
+
+    public bool player1 = true;
 	
 	private Matrix4x4 masic4 = Matrix4x4.identity;
     //private Matrix4x4 masic5 = Matrix4x4.identity;
@@ -66,9 +67,8 @@ public class RacketController : MonoBehaviour
 
         shuttleObj = GameObject.Find("Shuttle");
         handler.SetAddressHandler("/shuttlePos/", getShuttlePos);
-
-        player001 = GameObject.Find("Player01");
-        player002 = GameObject.Find("Player02");
+      
+        playerObj = GameObject.Find("HMDCamera");
         handler.SetAddressHandler("/player01", getPlayer01Pos);
         handler.SetAddressHandler("/player02", getPlayer02Pos);
 
@@ -106,8 +106,14 @@ public class RacketController : MonoBehaviour
 
         shuttleObj.transform.position = sh0;
 
-        player001.transform.position = pl1;
-        player002.transform.position = pl2;
+        if (player1)
+        {
+            playerObj.transform.position = pl1;
+        }
+        else
+        {
+            playerObj.transform.position = pl2;
+        }
 
 	}
 	void sumou10(OscMessage oscMessage)
