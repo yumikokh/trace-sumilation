@@ -49,8 +49,10 @@ class ofApp : public ofBaseApp{
     Simulation simu;
     CoefficientSpline cSpline;
     
-    ofVec3f racketPos[2];
-    vector <ofVec3f> bpos[2];
+    ofVec3f racketPos[TEMPLATE_RACKET_NUM];
+    vector <ofVec3f> bpos[TEMPLATE_RACKET_NUM];
+
+	ofVec3f playerPos[TEMPLATE_RACKET_NUM];
     
     ofVec3f mouse;
     
@@ -62,9 +64,11 @@ class ofApp : public ofBaseApp{
     float timers[NUM_MSG_STRINGS];
     nat::OscMocapDataReceiver oscMocapReciever;
     ofVec3f racketMarkerPos[TEMPLATE_RACKET_NUM][TEMPLATE_RACKET_MARKER_NUM];
+	ofVec3f playerMarkerPos[TEMPLATE_RACKET_NUM][2];
     
     // send to Unity
     ofxOscSender sender;
+	ofxOscSender sender2;
     
     ofVec3f shuttlePos;
     vector <ofVec3f> bspos;
