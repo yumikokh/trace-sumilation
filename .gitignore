@@ -1,1 +1,43 @@
 *.xcodeproj
+
+# =============== #
+# Unity generated #
+# =============== #
+VRbadominton/Temp/
+VRbadominton/Obj/
+VRbadominton/UnityGenerated/
+VRbadominton/Library/
+
+# ===================================== #
+# Visual Studio / MonoDevelop generated #
+# ===================================== #
+ExportedObj/
+VRbadominton/*.svd
+VRbadominton/*.userprefs
+VRbadominton/*.csproj
+VRbadominton/*.pidb
+VRbadominton/*.suo
+VRbadominton/*.sln
+VRbadominton/*.user
+VRbadominton/*.unityproj
+VRbadominton/*.booproj
+
+# ============ #
+# OS generated #
+# ============ #
+VRbadominton/.DS_Store
+VRbadominton/.DS_Store?
+VRbadominton/._*
+VRbadominton/.Spotlight-V100
+VRbadominton/.Trashes
+VRbadominton/Icon?
+VRbadominton/ehthumbs.db
+VRbadominton/Thumbs.db
+
+# ============ #
+# for others   #
+# ============ #
+
+VRbadominton/*.log #log files, for some plugins
+VRbadominton/*.pyc #python bytecode cache, for some plugins.
+VRbadominton/sysinfo.txt #Unity3D Generated File On Crash Reports
