@@ -12,8 +12,6 @@ void ofApp::setup(){
 	velocity = ofVec3f(0);
 	racketPos[0] = ofVec3f(0);
 	racketPos[1] = ofVec3f(0);
-	racketMarkerPos[0][0] = ofVec3f(0);
-	playerMarkerPos[TEMPLATE_RACKET_NUM][2] = ofVec3f(0);
 
 	initRadZ = 0;
 
@@ -39,8 +37,7 @@ void ofApp::setup(){
 	gravity = -9.807;
 
 	//--> シャトルの初期位置
-	/*initPos = ofVec3f(-3, 3, -12);*/
-	initPos = ofVec3f(1.f, 1.f, 1.f);
+	initPos = ofVec3f(.2f, .5f, 0);
 	shuttlePos = initPos;
 
 	//-> OSC
@@ -66,13 +63,13 @@ void ofApp::setup(){
 
 //--------------------------------------------------------------
 void ofApp::update(){
-
 	//--> PCテスト用
-	//if (0 < mouse.x) {
-	//	racketPos[0] = mouse;
-	//}else {
-	//	racketPos[1] = mouse;
-	//}
+	/*if (0 < mouse.x) {
+	racketPos[0] = mouse;
+	}else {
+	racketPos[1] = mouse;
+	}
+	*/
 
 	//--> Get from Cortex
 	while(oscMocapReciever.hasWaitingMessages()){
@@ -126,6 +123,7 @@ void ofApp::update(){
 		playerPos[1] = (playerMarkerPos[1][0]+playerMarkerPos[1][1])/2;
 	}
 
+
 	//--> ラケット位置バッファの保存
 	for (int i=0; i<2; i++) {
 		bpos[i].push_back(racketPos[i]);
@@ -136,7 +134,7 @@ void ofApp::update(){
 
 	//--> シャトルにあたったとき
 	for( int i = 0; i < TEMPLATE_RACKET_NUM; i++) {
-		if ( 0.26 > pow( (racketPos[i].x-shuttlePos.x)*(racketPos[i].x-shuttlePos.x) + (racketPos[i].y- shuttlePos.y)*(racketPos[i].y- shuttlePos.y) + (racketPos[i].z- shuttlePos.z)*(racketPos[i].z- shuttlePos.z), 0.5f ) ) 
+		if ( 0.1 > pow( (racketPos[i].x-shuttlePos.x)*(racketPos[i].x-shuttlePos.x) + (racketPos[i].y- shuttlePos.y)*(racketPos[i].y- shuttlePos.y) + (racketPos[i].z- shuttlePos.z)*(racketPos[i].z- shuttlePos.z), 0.5f ) ) 
 			//if (20 > ofDist(racketPos[i].x, racketPos[i].y, shuttlePos.x, shuttlePos.y) )
 		{
 
@@ -173,7 +171,7 @@ void ofApp::update(){
 	}
 
 	// 1sごとに軌跡を更新
-	if (curNum >= LOOP-2)
+	if (curNum >= (LOOP))
 	{
 		//--> 初速度
 		vector<ofVec3f>::iterator fitr = bspos.end() - 5;
@@ -273,7 +271,6 @@ void ofApp::draw(){
 	ofSetColor(255, 255, 255);
 	glDisable(GL_DEPTH_TEST);
 	//gui.draw();
-	//    ofDrawBitmapString(ofGetTimestampString(), 50, 50);
 	ofDrawBitmapString(ofToString(ofGetFrameRate()) + "fps", 50, 40);
 	ofDrawBitmapString("racket01:" + ofToString(racketPos[0]), 50, 60);
 	ofDrawBitmapString("racket02:" + ofToString(racketPos[1]), 50, 70);
@@ -297,33 +294,32 @@ void ofApp::draw(){
 	//camera.setDistance(100);
 
 	//--> ラケットのマウス、判定マーカー描画
-	ofSetColor(ofColor::red);
-	ofDrawSphere(racketPos[0]*unit, 20);
 	ofSetColor(ofColor::blue);
+	ofDrawSphere(racketPos[0]*unit, 20);
+	ofSetColor(ofColor::red);
 	ofDrawSphere(racketPos[1]*unit, 20);
 
 	//--> ラケットマーカー5つ
-	for (int j = 0; j < TEMPLATE_RACKET_MARKER_NUM; j++) {
-		ofSetColor(ofColor::pink);
-		ofDrawSphere(racketMarkerPos[0][j]*unit, 10);
+	//for (int j = 0; j < TEMPLATE_RACKET_MARKER_NUM; j++) {
+	//	ofSetColor(ofColor::pink);
+	//	ofDrawSphere(racketMarkerPos[0][j]*unit, 10);
 
-		ofSetColor(ofColor::skyBlue);
-		ofDrawSphere(racketMarkerPos[1][j]*unit, 10);
+	//	ofSetColor(ofColor::skyBlue);
+	//	ofDrawSphere(racketMarkerPos[1][j]*unit, 10);
+	//}
+
+	glBegin( GL_LINE_STRIP );
+	ofSetColor(ofColor::green);
+	for (int i = 0; i<2; i++) {
+		for (vector<ofVec3f>::iterator itr = bpos[i].begin(); itr != bpos[i].end(); ++itr) {
+			glVertex3d(itr->x, itr->y, itr->z);
+		}
 	}
-
-	//    glBegin( GL_LINE_STRIP );
-	//    ofSetColor(ofColor::green);
-	//    for (int i = 0; i<2; i++) {
-	//        for (vector<ofVec3f>::iterator itr = bpos[i].begin(); itr != bpos[i].end(); ++itr) {
-	//            //        ofCircle(itr->.x, itr->y, itr->z, 4);
-	//            glVertex3d(itr->x, itr->y, itr->z);
-	//        }
-	//    }
-	//    glEnd();
+	glEnd();
 
 
 	//--> シュミレーション軌跡描画
-	//simu.draw();
+	simu.draw();
 
 	//--> シャトル描画
 	if (shotSwitch) {
@@ -331,7 +327,6 @@ void ofApp::draw(){
 	}else {
 		ofSetColor(ofColor::green);
 	}
-	//	ofDrawSphere(shuttlePos.x*magScreen, shuttlePos.y*magScreen, shuttlePos.z*magScreen, 10);
 	ofDrawSphere(shuttlePos.x*unit, shuttlePos.y*unit, shuttlePos.z*unit, 20);
 
 
@@ -351,7 +346,7 @@ void ofApp::keyPressed(int key){
 		break;
 	case 'd':
 		bspos.clear();
-		shuttlePos = ofVec3f(300, 200);
+		shuttlePos = initPos;
 		break;
 
 	default:

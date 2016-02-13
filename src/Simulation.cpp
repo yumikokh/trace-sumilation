@@ -179,7 +179,7 @@ void Simulation::draw()
     ofSetColor(255);
     ofBeginShape();
     for(int i=0; i<LOOP; i++){
-        ofVertex(points[i].x, points[i].y, points[i].z);
+        ofVertex(points[i].x*1000, points[i].y*1000, points[i].z*1000);
     }
     ofEndShape();
     ofPopStyle();
