@@ -136,8 +136,6 @@ void Simulation::update()
     // 初期値
     x[0] = v0.x;
     x[1] = v0.y;
-    /*x[2] = pos0.x;
-	x[3] = pos0.y;*/
 	x[2] = x[3] = 0;
  
     double h;
@@ -155,23 +153,20 @@ void Simulation::update()
         Runge_Kutta(f, t, x, t+h, 1, 4);
         ofVec3f pre = ofVec3f(x[2], x[3], 0);
 
+		//--> y軸回転
 		ofMatrix4x4 m;
 		m.set (  cos(thetaZ0), 0, -sin(thetaZ0), pos0.x,
 				0,  1, 0, pos0.y,
 				sin(thetaZ0), 0, cos(thetaZ0), 0,
 				0, 0, 0, 1);
-
 		ofVec3f post = m * pre;
-//		post /= magValue;
-//		//post /= magValue;//error
-//		post += offset;
+
+		//post /= magValue;//error
+		//post += offset;
 
         points.push_back(post);
-        //        printf("%f %f \n",  x[2], x[3]);
         t+=h;
     }
-
-    
 }
 
 void Simulation::draw()

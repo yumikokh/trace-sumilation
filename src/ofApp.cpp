@@ -9,29 +9,11 @@ void ofApp::setup(){
 
 	ofBackground(ofColor::black);
 
-	//実空間と画面上の位置をあわせる
-	gui.setup();
-	ofVec3f val = ofVec3f(100);
-	gui.add( offset.setup("offset", ofVec3f(0,0,0), -val, val) );
-
-	cSpline.readData();
-	simu.setCoeSpline(&cSpline);
-
-	//1m is 1000 in oF
-	unit = 1000;
-	//acculate to Unity unit
-	u_unit = 10;
-
-	mass = 4.8 / unit; // 4.8g
-	area = 33*33*PI / (unit*unit);// Skirt Diameter = 66mm
-	rho = 1.205;
-	gravity = -9.807;
-
 	velocity = ofVec3f(0);
-	racketPos[0] = racketPos[1] = ofVec3f(0);
-	/*initPos = ofVec3f(-3, 3, -12);*/
-	initPos = ofVec3f(100, 100, 0); //for mouse check
-	shuttlePos = initPos;
+	racketPos[0] = ofVec3f(0);
+	racketPos[1] = ofVec3f(0);
+	racketMarkerPos[0][0] = ofVec3f(0);
+	playerMarkerPos[TEMPLATE_RACKET_NUM][2] = ofVec3f(0);
 
 	initRadZ = 0;
 
@@ -40,12 +22,37 @@ void ofApp::setup(){
 
 	curNum = 0;
 
+	//--> 実空間と画面上の位置をあわせる
+	gui.setup();
+	ofVec3f val = ofVec3f(100);
+	gui.add( offset.setup("offset", ofVec3f(0,0,0), -val, val) );
+
+	//--> 1m is 1000 in oF
+	unit = 1000;
+	//--> acculate to Unity unit
+	u_unit = 10;
+
+	//--> 環境変数
+	mass = 4.8 / unit; // 4.8g
+	area = 33*33*PI / (unit*unit);// Skirt Diameter = 66mm
+	rho = 1.205;
+	gravity = -9.807;
+
+	//--> シャトルの初期位置
+	/*initPos = ofVec3f(-3, 3, -12);*/
+	initPos = ofVec3f(1.f, 1.f, 1.f);
+	shuttlePos = initPos;
+
+	//-> OSC
 	oscMocapReciever.setup( PORT_FROM_CORTEX );
 	oscMocapReciever.isInitialized();
 
 	sender.setup("localhost", PORT_TO_UNITY);
 	sender2.setup("10.1.1.38", PORT_TO_UNITY);
 
+	//--> 係数読み込み
+	cSpline.readData();
+	simu.setCoeSpline(&cSpline);
 
 	//static double setValue(double m, double area ,double Cd, double Cl, double theta, double rho);
 	simu.setValue( mass, area, .001*1.3, .01*1.7, ofDegToRad(180), velocity, rho, shuttlePos, 0);
@@ -93,9 +100,9 @@ void ofApp::update(){
 
 		racketPos[0] = racketMarkerPos[0][0];
 		racketPos[1] = racketMarkerPos[1][0];
-		
 
-			float **unBuf3 = oscMocapReciever.getTemplateMarkerData(2, "/player01");
+
+		float **unBuf3 = oscMocapReciever.getTemplateMarkerData(2, "/player01");
 		for (int i = 0; i < 2; i++) {
 			playerMarkerPos[0][i].x = unBuf3[i][0];
 			playerMarkerPos[0][i].y = unBuf3[i][1];
@@ -129,8 +136,8 @@ void ofApp::update(){
 
 	//--> シャトルにあたったとき
 	for( int i = 0; i < TEMPLATE_RACKET_NUM; i++) {
-		if ( 50 > pow( (racketPos[i].x-shuttlePos.x)*(racketPos[i].x-shuttlePos.x) + (racketPos[i].y- shuttlePos.y)*(racketPos[i].y- shuttlePos.y) + (racketPos[i].z- shuttlePos.z)*(racketPos[i].z- shuttlePos.z), 0.5f ) ) 
-		//if (20 > ofDist(racketPos[i].x, racketPos[i].y, shuttlePos.x, shuttlePos.y) )
+		if ( 0.26 > pow( (racketPos[i].x-shuttlePos.x)*(racketPos[i].x-shuttlePos.x) + (racketPos[i].y- shuttlePos.y)*(racketPos[i].y- shuttlePos.y) + (racketPos[i].z- shuttlePos.z)*(racketPos[i].z- shuttlePos.z), 0.5f ) ) 
+			//if (20 > ofDist(racketPos[i].x, racketPos[i].y, shuttlePos.x, shuttlePos.y) )
 		{
 
 			//--> 初速度
@@ -216,7 +223,6 @@ void ofApp::update(){
 
 
 	//--> send to Unity
-
 	ofxOscMessage m;
 	std::string sendName;
 
@@ -246,14 +252,14 @@ void ofApp::update(){
 
 	//プレイヤー（視点）
 	for (int i=0; i<TEMPLATE_RACKET_NUM; i++) {
-			sendName = "/player0" + ofToString(i+1);
-			m.setAddress(sendName);
-			m.addFloatArg(playerPos[i].x*u_unit);
-			m.addFloatArg(playerPos[i].y*u_unit);
-			m.addFloatArg(-playerPos[i].z*u_unit);
-			sender.sendMessage(m);
-			sender2.sendMessage(m);
-			m.clear();
+		sendName = "/player0" + ofToString(i+1);
+		m.setAddress(sendName);
+		m.addFloatArg(playerPos[i].x*u_unit);
+		m.addFloatArg(playerPos[i].y*u_unit);
+		m.addFloatArg(-playerPos[i].z*u_unit);
+		sender.sendMessage(m);
+		sender2.sendMessage(m);
+		m.clear();
 	}
 
 
@@ -326,7 +332,7 @@ void ofApp::draw(){
 		ofSetColor(ofColor::green);
 	}
 	//	ofDrawSphere(shuttlePos.x*magScreen, shuttlePos.y*magScreen, shuttlePos.z*magScreen, 10);
-	ofDrawSphere(shuttlePos.x*unit, shuttlePos.y*unit, shuttlePos.z*unit, 10);
+	ofDrawSphere(shuttlePos.x*unit, shuttlePos.y*unit, shuttlePos.z*unit, 20);
 
 
 	//--> 軸描画
