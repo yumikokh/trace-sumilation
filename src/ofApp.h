@@ -36,8 +36,10 @@ class ofApp : public ofBaseApp{
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
     
-    
+    //1m is 1000 in oF
     float unit;
+	//acculate to Unity unit
+	float u_unit;
     
     float mass;
     float area;
