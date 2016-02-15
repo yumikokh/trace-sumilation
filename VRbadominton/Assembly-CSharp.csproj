@@ -77,6 +77,7 @@
      <Compile Include="Assets\OVR\Scripts\Util\OVRScreenFade.cs" />
      <Compile Include="Assets\OVR\Scripts\Util\OVRTrackerBounds.cs" />
      <Compile Include="Assets\Scripts\RacketController.cs" />
+     <Compile Include="Assets\statocRotation.cs" />
      <None Include="Assets\Plugins\Android\assets\placeholder.txt" />
      <None Include="Assets\OVR\Moonlight\Shaders\OVRColorRampAlpha.shader" />
      <None Include="Assets\Plugins\Android\AndroidManifest.xml" />

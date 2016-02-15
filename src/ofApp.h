@@ -44,7 +44,7 @@ class ofApp : public ofBaseApp{
     float mass;
     float area;
     double rho;
-    double gravity;
+    //double gravity;
     
     ofVec3f velocity;
     
@@ -92,7 +92,13 @@ class ofApp : public ofBaseApp{
 
 	//í≤êÆópGUI
 	ofxPanel gui;
-	ofxFloatSlider magValue;
-	ofxVec3Slider offset;
+	ofxFloatSlider gravity;
+	ofxFloatSlider offset;
+
+	//å¯â âπ
+	ofSoundPlayer bgmSound;
+	ofSoundPlayer shotSound;
+	ofSoundPlayer swingSound;
+
 		
 };

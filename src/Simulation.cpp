@@ -12,7 +12,7 @@
 ofVec3f Simulation::v0, Simulation::v, Simulation::pos0;
 double Simulation::theta;
 double Simulation::area, Simulation::theta0, Simulation::m, Simulation::rho;
-double Simulation::g;
+float Simulation::g;
 float Simulation::thetaZ0;
 
 CoefficientSpline Simulation::*coePtr;
@@ -77,11 +77,6 @@ void Simulation::setGravity(double _g)
     g = _g;
 }
 
-void Simulation::setMagValue(float _mag, ofVec3f _offset)
-{
-    magValue = _mag;
-	offset = _offset;
-}
 // dv/dt =
 double Simulation::f1(double t, double *x, CoefficientSpline *_coePtr)
 {
@@ -91,8 +86,8 @@ double Simulation::f1(double t, double *x, CoefficientSpline *_coePtr)
         }
         float Cd_val = _coePtr->getInterpolation( theta, Cd);
         float Cl_val = _coePtr->getInterpolation( theta, Cl);
-//        return -( rho*(x[0]*x[0] + x[1]*x[1])*area*(Cd_val*cos(theta) + Cl_val*sin(theta)) )/(2*m);//vxa
-    return 0;
+ return -( rho*(x[0]*x[0] + x[1]*x[1])*area*(Cd_val*cos(theta) + Cl_val*sin(theta)) )/(2*m);//vxa
+    //return 0;
 }
 
 // dw/dt =
@@ -105,12 +100,8 @@ double Simulation::f2(double t, double *x, CoefficientSpline *_coePtr)
         float Cd_val = _coePtr->getInterpolation( theta, Cd);
         float Cl_val = _coePtr->getInterpolation( theta, Cl);
     
-    
-//    cout << theta << ":" << Cd_val<< endl; //めちゃ重くなる
-    
-//        return -( rho*(x[0]*x[0] + x[1]*x[1])*area*(Cd_val*sin(theta) - Cl_val*cos(theta)) )/(2*m) + m*g; //vya
-    //    return -( rho*(x[0]*x[0] + x[1]*x[1])*area*(Cd_val*sin(theta) - Cl_val*cos(theta)) )/(2*m) + m*g;//vya
-    return m*g;
+       return -( rho*(x[0]*x[0] + x[1]*x[1])*area*(Cd_val*sin(theta) - Cl_val*cos(theta)) )/(2*m) + m*g; //vya
+    //return m*g;
 }
 
 // dx/dt =
@@ -130,7 +121,7 @@ double Simulation::f4(double t, double *x, CoefficientSpline *_coePtr)
 void Simulation::update()
 {
     
-    double t=0, tn=1; //1s
+    double t=0, tn=10; //1s
     double x[4];
     
     // 初期値

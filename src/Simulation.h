@@ -9,7 +9,7 @@
 #include "ofMain.h"
 #include "CoefficientSpline.h"
 
-#define LOOP 60
+#define LOOP 600
 
 class Simulation {
     
@@ -25,7 +25,6 @@ public:
     
     static void setValue(double _m, double _area ,double _cd, double _cl, double _theta, ofVec3f _velocity, double _rho, ofVec3f _pos, float _thetaZ);
     static void setGravity(double g);
-	void setMagValue(float _mag, ofVec3f _offset);
     void update();
     void draw();
     vector <ofVec3f> getPos();
@@ -35,11 +34,8 @@ public:
     static ofVec3f pos0;
     static double area, m, rho;
     static double theta, theta0;
-    static double g;
+    static float g;
 	static float thetaZ0;
-
-	float magValue;
-	ofVec3f offset;
     
      vector <ofVec3f> points;
 //    ofVec2f point;
