@@ -86,8 +86,8 @@ double Simulation::f1(double t, double *x, CoefficientSpline *_coePtr)
         }
         float Cd_val = _coePtr->getInterpolation( theta, Cd);
         float Cl_val = _coePtr->getInterpolation( theta, Cl);
- return -( rho*(x[0]*x[0] + x[1]*x[1])*area*(Cd_val*cos(theta) + Cl_val*sin(theta)) )/(2*m);//vxa
-    //return 0;
+ //return -( rho*(x[0]*x[0] + x[1]*x[1])*area*(Cd_val*cos(theta) + Cl_val*sin(theta)) )/(2*m);//vxa
+    return 0;
 }
 
 // dw/dt =
@@ -100,8 +100,8 @@ double Simulation::f2(double t, double *x, CoefficientSpline *_coePtr)
         float Cd_val = _coePtr->getInterpolation( theta, Cd);
         float Cl_val = _coePtr->getInterpolation( theta, Cl);
     
-       return -( rho*(x[0]*x[0] + x[1]*x[1])*area*(Cd_val*sin(theta) - Cl_val*cos(theta)) )/(2*m) + m*g; //vya
-    //return m*g;
+       //return -( rho*(x[0]*x[0] + x[1]*x[1])*area*(Cd_val*sin(theta) - Cl_val*cos(theta)) )/(2*m) + m*g; //vya
+    return m*g;
 }
 
 // dx/dt =
