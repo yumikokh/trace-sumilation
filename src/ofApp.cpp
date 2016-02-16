@@ -184,7 +184,7 @@ void ofApp::update(){
 				bspos = simu.getPos();
 				curNum = 0;
 
-			}else if( .6 < sqrt((eitr->x-fitr->x)*(eitr->x-fitr->x) + (eitr->y-fitr->y)*(eitr->y-fitr->y) + (eitr->z-fitr->z)*(eitr->z-fitr->z)) )  {
+			}else if( 1.8 < sqrt((eitr->x-fitr->x)*(eitr->x-fitr->x) + (eitr->y-fitr->y)*(eitr->y-fitr->y) + (eitr->z-fitr->z)*(eitr->z-fitr->z)) )  {
 				swingSound.play();
 			}
 		}
